@@ -1,5 +1,7 @@
-<% if @song == Song.all.last %>
+<% if @new %>
   "Successfully created song."
+<% end %>
+<% if @update %>
   "Successfully updated song."
 <% end %>
 

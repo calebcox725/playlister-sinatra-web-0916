@@ -12,20 +12,21 @@ class SongsController < ApplicationController
 
   get '/songs/:slug' do
     @song = Song.find_by_slug(params[:slug])
+    @new = Song.last == @song
     erb :'/songs/show'
   end
 
   post '/songs' do 
-    song = Song.create(params[:song])
+    @song = Song.create(params[:song])
 
     params[:genres].each do |genre|
-      SongGenre.create(song_id: song.id, genre_id: genre.to_i)
+      SongGenre.create(song_id: @song.id, genre_id: genre.to_i)
     end
 
-    song.artist = Artist.find_or_create_by(params[:artist])
-    song.save
+    @song.artist = Artist.find_or_create_by(params[:artist])
+    @song.save
 
-    redirect to "/songs/#{song.slug}"
+    redirect to "/songs/#{@song.slug}"
   end
 
   get '/songs/:slug/edit' do
@@ -35,19 +36,20 @@ class SongsController < ApplicationController
   end
 
   patch '/songs/:slug' do
-    song = Song.find_by_slug(params[:slug])
-    
-    song.name = params[:song][:name]
-    song.artist = Artist.find_or_create_by(params[:artist])
+    @song = Song.find_by_slug(params[:slug])
 
-    SongGenre.where("song_id = ?", song.id).destroy_all
+    @song.name = params[:song][:name]
+    @song.artist = Artist.find_or_create_by(params[:artist])
+
+    SongGenre.where("song_id = ?", @song.id).destroy_all
     params[:genres].each do |genre|
-      SongGenre.create(song_id: song.id, genre_id: genre.to_i)
+      SongGenre.create(song_id: @song.id, genre_id: genre.to_i)
     end
 
-    song.save
+    @song.save
 
-    redirect to "/songs/#{song.slug}"
+    @update = true
+    erb :'/songs/show'
   end
 
 end
